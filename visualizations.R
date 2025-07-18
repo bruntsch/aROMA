@@ -4,7 +4,7 @@ library(viridis)
 library(readxl)
 library(gsheet)
 library(dplyr)
-library(tidyryr)
+library(tidyr)
 
 #load metadata from google spreadsheet
 url <- "https://docs.google.com/spreadsheets/d/1UtuHWBGqRnDnIB22Qs8lBElyr8jwv6UPu9rxcffiqLA/edit?usp=sharing"
