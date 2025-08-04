@@ -1,8 +1,11 @@
 #### effect size plotting ####
-library(forestploter)
 library(ggplot2)
 library(viridis)
 library(gsheet)
+library(forestplot)
+library(patchwork)
+library(stringr)
+library(dplyr)
 
 #load metadata from google spreadsheet
 url <- "https://docs.google.com/spreadsheets/d/1UtuHWBGqRnDnIB22Qs8lBElyr8jwv6UPu9rxcffiqLA/edit?usp=sharing"
@@ -18,42 +21,66 @@ es_data$ma_es_value <- as.numeric(es_data$ma_es_value)
 es_data$ma_ci_low    <- as.numeric(es_data$ma_ci_low)
 es_data$ma_ci_high    <- as.numeric(es_data$ma_ci_high)
 
-### forestplot
-library("forestplot")
+# forestplots ####
+# Sample function creating "forest plot"-style plot with ggplot
+# chose between "manipulations", "Paradigm specifications", 
+# "patient vs. control", "Correlations with third variables"
+focus_to_plot <- "patient vs. control"
+plot_data <- filter(es_data, focus == focus_to_plot)
 
-for (foc in unique(es_data$focus)){
- 
-  plot_data <- subset(es_data, focus == foc)
-  
-  tabletext <- rbind(
-    c("ID", "Phase", "Outcome", "DV"),  # Header row
-    cbind(
-      plot_data$ID,
-      plot_data$ma_phase,
-      plot_data$ma_outcome,
-      plot_data$ma_dv
-    )
+# Basic ggplot for forest-like plot
+p <- ggplot(plot_data, aes(y = reorder(ID, ma_es_value), x = ma_es_value)) +
+  geom_point(color = "#22A884FF", size=2) +
+  geom_errorbarh(aes(xmin = ma_ci_low, xmax = ma_ci_high), height = 0.3, color = "#14614D") +
+  facet_grid(ma_phase ~ ma_dv, scales = "free_y", space = "free_y") +
+  labs(x = "Effect Size", y = "ID",
+       title = paste("Forest plots for focus:", focus_to_plot)) +
+  theme_classic() +
+  theme(
+    strip.background = element_rect(fill = "lightgray"),
+    panel.spacing = unit(1, "lines")
   )
-  
-  mean  <- c(NA, plot_data$ma_es_value)
-  lower <- c(NA, plot_data$ma_ci_low)
-  upper <- c(NA, plot_data$ma_ci_high)
-  
-  filename <- paste0("plots/", gsub("[^[:alnum:]_]", "_", foc), "_forestplot.png")
-  png(filename, width = 4800, height = 2400, res = 150)
-  
-  forestplot(
-    labeltext = tabletext,
-    mean = mean,
-    lower = lower,
-    upper = upper,
-    xlab = "Effect Size",
-    title = paste("Forest plot for focus:", foc),
-    zero = 0, # line at 0
-    boxsize = 0.2, # adjust as needed
-    lineheight = unit(1, "cm"),
-    col = fpColors(box="royalblue", lines="darkblue", summary="royalblue")
-  )
-  dev.off()
-}
 
+# Optionally add number of studies/effects as text outside plot panels with patchwork, 
+# or include in facet labels by modifying factor levels (more complex).
+
+print(p)
+ggsave(filename = paste0("plots/fp_grid_",gsub("[^[:alnum:]_]", "_", focus_to_plot),".png"), plot = p, width = 12, height = 10, dpi = 300)
+
+# reducing to CS+/CS-/CS diff and acquisition/extinction ####
+# chose between "manipulations", "Paradigm specifications", 
+# "patient vs. control", "Correlations with third variables"
+
+focus_to_plot <- "Correlations with third variables"
+plot_data <- filter(es_data, focus == focus_to_plot)
+# Define categories for coloring
+outcome_phys <- c("EKG","startle","HR","SCR","PD")
+outcome_rats <- plot_data$ma_outcome[str_detect(plot_data$ma_outcome, "rating")]
+outcome_behav <- c("freezing", "avoidance")
+
+colors <- c("Physiological" = "#440154FF", "Ratings" = "#2A788EFF", 
+            "Behavioral" = "#22A884FF", "Multiple outcomes" = "#7AD151FF", "Other" = "#FDE725FF")
+
+data_filtered <- plot_data %>%
+  filter(ma_dv %in% c("CS+", "CS-", "CS discrimination"),
+         ma_phase %in% c("acquisition", "extinction")) %>%
+  mutate(outcome_type = case_when(
+    str_detect(ma_outcome, ",") ~ "Multiple outcomes",  # catch commas first
+    ma_outcome %in% outcome_phys ~ "Physiological",
+    ma_outcome %in% outcome_rats ~ "Ratings",
+    ma_outcome %in% outcome_behav ~ "Behavioral",
+    TRUE ~ "Other"
+  ))
+
+p <- ggplot(data_filtered, aes(x = ma_es_value, y = reorder(ID, ma_es_value), color = outcome_type)) +
+  geom_point() +
+  geom_errorbarh(aes(xmin = ma_ci_low, xmax = ma_ci_high), height = 0.2) +
+  facet_grid(ma_phase ~ ma_dv, scales = "free_y", space = "free") +
+  scale_color_manual(values = colors) +
+  labs(x = "Effect Size", y = "Study ID", color = "Outcome Type") +
+  theme_classic() +
+  theme(strip.background = element_rect(fill = "gray90"),
+        panel.spacing = unit(1, "lines"),
+        legend.position = "bottom")
+
+ggsave(filename = paste0("plots/fp_grid_",gsub("[^[:alnum:]_]", "_", focus_to_plot),".png"), plot = p, width = 12, height = 10, dpi = 300)
