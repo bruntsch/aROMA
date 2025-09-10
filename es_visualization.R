@@ -6,6 +6,9 @@ library(forestplot)
 library(patchwork)
 library(stringr)
 library(dplyr)
+library(gridExtra)
+library(grid)
+
 
 #load metadata from google spreadsheet
 url <- "https://docs.google.com/spreadsheets/d/1UtuHWBGqRnDnIB22Qs8lBElyr8jwv6UPu9rxcffiqLA/edit?usp=sharing"
@@ -42,7 +45,6 @@ p <- ggplot(plot_data, aes(y = reorder(ID, ma_es_value), x = ma_es_value)) +
   )
 
 # Optionally add number of studies/effects as text outside plot panels with patchwork, 
-# or include in facet labels by modifying factor levels (more complex).
 
 print(p)
 ggsave(filename = paste0("plots/fp_grid_",gsub("[^[:alnum:]_]", "_", focus_to_plot),".png"), plot = p, width = 12, height = 10, dpi = 300)
@@ -51,7 +53,7 @@ ggsave(filename = paste0("plots/fp_grid_",gsub("[^[:alnum:]_]", "_", focus_to_pl
 # chose between "manipulations", "Paradigm specifications", 
 # "patient vs. control", "Correlations with third variables"
 
-focus_to_plot <- "Correlations with third variables"
+focus_to_plot <- "manipulations"
 plot_data <- filter(es_data, focus == focus_to_plot)
 # Define categories for coloring
 outcome_phys <- c("EKG","startle","HR","SCR","PD")
@@ -72,7 +74,11 @@ data_filtered <- plot_data %>%
     TRUE ~ "Other"
   ))
 
-p <- ggplot(data_filtered, aes(x = ma_es_value, y = reorder(ID, ma_es_value), color = outcome_type)) +
+#filter for table
+data_filtered <- data_filtered %>%
+  mutate(y_row = interaction(ID, ma_outcome)) # creates unique y for plotting
+
+p <- ggplot(data_filtered, aes(x = ma_es_value, y = y_row, color = outcome_type)) +
   geom_point() +
   geom_errorbarh(aes(xmin = ma_ci_low, xmax = ma_ci_high), height = 0.2) +
   facet_grid(ma_phase ~ ma_dv, scales = "free_y", space = "free") +
@@ -83,4 +89,17 @@ p <- ggplot(data_filtered, aes(x = ma_es_value, y = reorder(ID, ma_es_value), co
         panel.spacing = unit(1, "lines"),
         legend.position = "bottom")
 
+p + scale_y_discrete(
+  labels = setNames(data_filtered$ID, data_filtered$y_row))
+
 ggsave(filename = paste0("plots/fp_grid_",gsub("[^[:alnum:]_]", "_", focus_to_plot),".png"), plot = p, width = 12, height = 10, dpi = 300)
+
+# Assuming your plot is stored in p
+# Create info table
+info_table <- data_filtered %>%
+  select(ID, ma_outcome, ma_additional, ma_n, ma_k) # select desired columns
+
+table_grob <- tableGrob(info_table, rows = NULL, theme = ttheme_minimal())
+
+# Combine plot and table
+grid.arrange(p, table_grob, ncol = 2, widths = c(3, 1))  # side-by-side
