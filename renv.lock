@@ -94,6 +94,23 @@
       ],
       "Hash": "16850760556401a2eeb27d39bd11c9cb"
     },
+    "cowplot": {
+      "Package": "cowplot",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "ggplot2",
+        "grDevices",
+        "grid",
+        "gtable",
+        "methods",
+        "rlang",
+        "scales"
+      ],
+      "Hash": "596af504bed287f32d888a05889dcc9d"
+    },
     "cpp11": {
       "Package": "cpp11",
       "Version": "0.5.2",
@@ -155,6 +172,22 @@
       "Source": "Repository",
       "Repository": "https://packagemanager.posit.co/cran/2024-05-18",
       "Hash": "680887028577f3fa2a81e410ed0d6e42"
+    },
+    "forcats": {
+      "Package": "forcats",
+      "Version": "1.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cli",
+        "glue",
+        "lifecycle",
+        "magrittr",
+        "rlang",
+        "tibble"
+      ],
+      "Hash": "1a0a9a3d5083d0d573c4214576f1e690"
     },
     "generics": {
       "Package": "generics",

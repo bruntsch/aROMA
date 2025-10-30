@@ -75,14 +75,14 @@ plot_numbers <- function(data, column, title_text, x_axis_name, y_axis_name){
       var_num = ifelse(is.na(var_num), 0, var_num)
     )
   
-  p <- ggplot(data_plot, aes(x = reorder(ID, year),
+  p <- ggplot(data_plot, aes(x = reorder(ID, var_num),
                              y = var_num, 
                              fill = var_num)) + 
     geom_bar(stat = "identity") +
     coord_flip() +
     scale_fill_viridis_c(option = "viridis", begin =0.5, end=0.5) +
     geom_text(aes(label = .data[[column]], 
-                  hjust = ifelse(.data[[column]] == "not reported", 0, -0.1)), 
+                  hjust = ifelse(is.character(.data[[column]]), 0, -0.1)), 
               size = 3) +
     labs(title = title_text,
          x = x_axis_name,
