@@ -34,34 +34,53 @@ for (row in 1:nrow(data)){
 
 # plotting counts based on simple_count function ####
 # grey literature
-greyL_plot <- plot_simple_count(data, "grey_literature", "Grey Literature Included", "", "Number of MAs")
-ggsave("plots/grey_literature.png", plot = greyL_plot, width=7, height=5, dpi=300)
+greyL_pie <- plot_simple_pie(data, "grey_literature", "Grey Literature Included", "", "Number of MAs")
+ggsave("plots/pie_grey-literature.png", plot = greyL_pie, width=5, height=5, dpi=300)
+
 # number of screeners - abstract & title 
-screener_AT_plot <- plot_simple_count(data, "n_screeners_AT", "Title & Abstract Screening", "", "Number of Screeners")
-ggsave("plots/screener_AT.png", plot = screener_AT_plot, width=7, height=3, dpi=300)
+# only differentiate between not reported, unclear, 1 and more than 1
+for (i in 1:nrow(data)){
+  if (! data$n_screeners_AT[i] %in%  c("1","not reported", "unclear")){
+    data$screener_AT_group[i] <-  ">1"
+  }
+  else {
+    data$screener_AT_group[i] <-  data$n_screeners_AT[i]
+  }
+}
+screener_AT_pie <- plot_simple_pie(data, "screener_AT_group", "Title & Abstract Screening", "", "Number of Screeners")
+ggsave("plots/pie_screener_AT.png", plot = screener_AT_pie, width=5, height=5, dpi=300)
 # number of screeners - full-text 
-screener_FT_plot <- plot_simple_count(data, "n_screeners_FT", "Full-Text Screening", "", "Number of Screeners")
-ggsave("plots/screener_FT.png", plot = screener_FT_plot, width=7, height=3, dpi=300)
+# only differentiate between not reported, unclear, 1 and more than 1
+for (i in 1:nrow(data)){
+  if (! data$n_screeners_FT[i] %in%  c("1","not reported", "unclear")){
+    data$screener_FT_group[i] <-  ">1"
+  }
+  else {
+    data$screener_FT_group[i] <-  data$n_screeners_FT[i]
+  }
+}
+screener_FT_pie <- plot_simple_pie(data, "screener_FT_group", "Full-Text Screening", "", "Number of Screeners")
+ggsave("plots/pie_screener_FT.png", plot = screener_FT_pie, width=5, height=5, dpi=300)
 # MA model
-model_plot <- plot_simple_count(data, "ma_model", "Applied MA Model", "", "Number of MAs")
-ggsave("plots/model.png", plot = model_plot, width=7, height=3, dpi=300)
+model_pie <- plot_simple_pie(data, "ma_model", "Applied MA Model", "", "Number of MAs")
+ggsave("plots/pie_model.png", plot = model_pie, width=5, height=5, dpi=300)
 # nested MA model
-nested_plot <- plot_simple_count(data, "nested_meta_analysis", "Nested MA Model", "", "Number of MAs")
-ggsave("plots/nested.png", plot = nested_plot, width=7, height=3, dpi=300)
+nested_pie <- plot_simple_pie(data, "nested_meta_analysis", "Nested MA Model", "", "Number of MAs")
+ggsave("plots/pie_nested.png", plot = nested_pie, width=5, height=5, dpi=300)
 # preregistration
-prereg_plot <- plot_simple_count(data, "pre_registration", "Preregistered Meta-Analyses", "", "Number of MAs")
-ggsave("plots/preregistration.png", plot = prereg_plot, width=7, height=5, dpi=300)
+prereg_pie <- plot_simple_pie(data, "pre_registration", "Preregistered Meta-Analyses", "", "Number of MAs")
+ggsave("plots/pie_preregistration.png", plot = prereg_pie, width=5, height=5, dpi=300)
 # quality assessment 
-qa_plot <- plot_simple_count(data, "qa", "Quality Assessement Conducted Based on", "", "Number of MAs")
-ggsave("plots/qa.png", plot = qa_plot, width=7, height=5, dpi=300)
+qa_pie <- plot_simple_pie(data, "qa", "Quality Assessement Conducted Based on", "", "Number of MAs")
+ggsave("plots/pie_qa.png", plot = qa_pie, width=5, height=5, dpi=300)
 # outlier & influential analysis 
-oa_plot <- plot_simple_count(data, "outlier_analysis", "Assessment for Outlier and Influential Studies", "", "Number of MAs")
-ggsave("plots/oa.png", plot = oa_plot, width=7, height=5, dpi=300)
+oa_pie <- plot_simple_pie(data, "outlier_analysis", "Assessment for Outlier and Influential Studies", "", "Number of MAs")
+ggsave("plots/pie_oa.png", plot = oa_pie, width=7, height=5, dpi=300)
 
 # plotting counts based on nested_count function ####
 # used guidelines
 guideline_plot <- plot_nested_count(data, "guidelines_search", "Guidelines Used", "", "Number of MAs")
-ggsave("plots/guidelines_search.png", plot = guideline_plot, width=7, height=5, dpi=300)
+ggsave("plots/guidelines_search.png", plot = guideline_plot, width=7, height=5, dpi=300, bg = "transparent")
 # bias detection methods
 bias_plot <- plot_nested_count(data, "publication_bias", "Bias Detection Tools", "", "Number of MAs")
 ggsave("plots/bias.png", plot = bias_plot, width=7, height=5, dpi=300)
@@ -71,26 +90,26 @@ ggsave("plots/open_material.png", plot = open_plot, width=7, height=5, dpi=300)
 
 # combine count plots -> grid ####
 # Literature Review grid plot 
-grid_plot_general <- plot_grid(guideline_plot,greyL_plot, screener_AT_plot, screener_FT_plot,
-          ncol = 2, nrow = 2, align = "vh",
-          rel_heights = c(2,3),
-          labels = "auto")
-ggsave("plots/general.png", plot = grid_plot_general, width=15, height=4, dpi=300)
+grid_pie_general <- plot_grid(greyL_pie, screener_AT_pie, screener_FT_pie,
+          ncol = 3, nrow = 1, align = "v",
+          labels = c("b","c","d"))
+guideline_plot_fixed <- guideline_plot + theme(aspect.ratio = 5/15)
+grid_general <- plot_grid(guideline_plot_fixed, grid_pie_general,
+                          ncol = 1, nrow = 2,
+                          rel_heights = c(1/3),
+                          labels = c("a",""))
+  
+ggsave("plots/pie_general.png", plot = grid_general, width=15, height=8, dpi=300)
 # Open science grid plot
-grid_plot_quality <- plot_grid(prereg_plot,open_plot,qa_plot, oa_plot, bias_plot, 
-                             ncol = 2, nrow = 3, align = "vh",
-                             rel_heights = c(1,1,2),
-                             labels = "auto")
-grid_plot_quality2_part1 <- plot_grid(prereg_plot,open_plot,qa_plot, oa_plot, 
-                               ncol = 2, nrow = 2, align = "vh",
-                               rel_heights = c(1,1,2),
-                               labels = c("a", "b", "c", "d"))
-bias_plot_fixed <- bias_plot + theme(aspect.ratio = 5/15)
-grid_plot_quality2 <- plot_grid(grid_plot_quality2_part1, bias_plot_fixed, 
-                                      ncol = 1, nrow = 2,
-                                      rel_heights = c(2,1),
-                                      labels = c("","e"))
-ggsave("plots/quality.png", plot = grid_plot_quality2, width=14, height=7, dpi=300)
+grid_plot_quality_part1 <- plot_grid(prereg_pie,qa_pie, oa_pie, 
+                             ncol = 3, nrow = 1, align = "v",
+                             labels = c("a","b","c"))
+grid_plot_quality_part2 <- plot_grid(open_plot, bias_plot, 
+                                     ncol = 2, nrow = 1, align = "v",
+                                     labels = c("d","e"))
+grid_plot_quality <- plot_grid(grid_plot_quality_part1, grid_plot_quality_part2, 
+                               ncol = 1, nrow = 2, align = "vh")
+ggsave("plots/quality.png", plot = grid_plot_quality, width=15, height=10, dpi=300)
 # MA model grid plot 
 grid_plot_ma_model <- plot_grid(model_plot,nested_plot, 
                                 ncol = 2, nrow = 1, align = "vh",
@@ -191,7 +210,8 @@ ggsave("plots/ma_outcomes.png", plot = outcome_plot, width=8, height=5, dpi=300)
 
 # phases ###
 # Prepare the data for 'ma_phases'
-rof_list <- c("recall", "extinction recall", "spontaneous recovery", "return of fear", "retention","renewal","reinstatement")
+rof_list <- c("recall", "extinction recall", "spontaneous recovery", 
+              "return of fear", "retention","renewal","reinstatement")
 
 phase_data <- data %>%
   mutate(phase_cat = sapply(strsplit(ma_phases, ","), function(words) {
