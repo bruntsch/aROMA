@@ -4,6 +4,35 @@ library(tidyr)
 library(stringr)
 library(dplyr)
 
+# setting the theme
+plot_theme_bar <- theme(plot.title = element_text(size=25, face="bold", hjust=0.5),
+                    axis.text.x = element_text(size=20, face="bold", color="black"),
+                    axis.text.y = element_text(size=20, face="bold", color="black"),
+                    axis.title.x = element_text(size=20, face="plain"),
+                    axis.title.y = element_text(size=20, face="plain", margin=margin(0,10,0,0)),
+                    legend.position = "none",
+                    axis.line.x = element_line(color="black", linewidth = 1),
+                    axis.line.y = element_line(color="black", linewidth = 1),
+                    axis.ticks.x=element_blank(),
+                    panel.border = element_blank(),
+                    panel.background = element_rect(fill = "transparent", colour = NA), 
+                    plot.background = element_rect(fill = "transparent", colour = NA),
+                    panel.grid.major = element_blank(),
+                    panel.grid.minor = element_blank(),
+                    plot.margin = margin(2, 2, 2, 0, unit = "lines"))
+
+plot_theme_pie <- theme(plot.title = element_text(size=25, face="bold", hjust=0.5),
+                        legend.title = element_blank(),
+                        legend.text = element_text(size=20),
+                        legend.key = element_blank(),
+                        legend.position = "bottom", 
+                        axis.ticks.x=element_blank(),
+                        panel.border = element_blank(),
+                        panel.background = element_blank(),
+                        panel.grid.major = element_blank(),
+                        panel.grid.minor = element_blank(),
+                        plot.margin = margin(2, 2, 2, 0, unit = "lines"))
+
 # bar plot where every study has one answer 
 plot_simple_pie <- function(data, column, title_text, x_axis_name, y_axis_name){
   counts <- data %>%
@@ -26,16 +55,13 @@ plot_simple_pie <- function(data, column, title_text, x_axis_name, y_axis_name){
   p <- ggplot(counts, aes(x = "", y = Count, fill = Answer)) +
     geom_col(width = 1, color = "black") +
     coord_polar(theta = "y") +
-    geom_text(aes(label = Count), position = position_stack(vjust = 0.5), size = 5, color = "white") +
-    #geom_bar(stat = "identity", width = 0.7) +     # width for aesthetics
-    #coord_flip()+
+    geom_text(aes(label = Count), position = position_stack(vjust = 0.5), size = 10, color = "white") +
+    guides(fill=guide_legend(nrow=2, byrow=TRUE))+
     scale_fill_viridis_d(option = "viridis", begin = 0, end = 0.5, na.value = "grey") +
     labs(x = x_axis_name, y = y_axis_name, title = paste(title_text)) +
     theme_void() +
-    theme(plot.title = element_text(size=15, hjust = 0),
-          legend.position = "bottom", 
-          legend.title = element_blank(), 
-          legend.text=element_text(size=10))
+    plot_theme_pie
+  
   return(p)
 }
 
@@ -104,17 +130,13 @@ plot_nested_count <- function(data, column, title_text, x_axis_name, y_axis_name
     geom_bar(stat = "identity", width = 0.7) +     # width for aesthetics
     coord_flip()+
     scale_fill_viridis_c(option = "viridis", begin=0.5, end=0.5, na.value = "grey") +
-    geom_text(aes(label = Count),hjust = -0.2, size = 5) +
+    geom_text(aes(label = Count),hjust = -0.2, size = 10) +
+    #scale_x_discrete(expand = expansion(add = c(0.6, 0))) +
+    scale_y_continuous(expand = expansion(mult = c(0,0.15))) +
     labs(x = x_axis_name, y = y_axis_name, title = paste0(title_text)) +
     theme_classic() +
-    theme(legend.position = "none", 
-          plot.title = element_text(size=15, hjust = 0), 
-          # make the background transparent 
-          panel.background = element_rect(fill = "transparent", colour = NA), 
-          plot.background = element_rect(fill = "transparent", colour = NA),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()
-    )
+    plot_theme_bar
+  
   return(p)
 }
 
@@ -135,19 +157,12 @@ plot_numbers <- function(data, column, title_text, x_axis_name, y_axis_name){
     scale_fill_viridis_c(option = "viridis", begin =0.5, end=0.5) +
     geom_text(aes(label = .data[[column]], 
                   hjust = ifelse(is.character(.data[[column]]), 0, -0.1)), 
-              size = 3) +
+              size = 6) +
     labs(title = title_text,
          x = x_axis_name,
          y = y_axis_name) +
     theme_classic() + # or minimal
-    theme(panel.grid = element_blank(), 
-          legend.position = "none", 
-          plot.title = element_text(size = 15, hjust = 0),
-          # make the background transparent
-          panel.background = element_rect(fill = "transparent", colour = NA),
-          plot.background = element_rect(fill = "transparent", colour = NA),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()
-    )
+    plot_theme_bar
+
   return(p)
 }
