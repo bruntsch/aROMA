@@ -115,7 +115,7 @@ study_plot <- ggplot(data_plot, aes(x = reorder(ID, n_studies_human), y = num, f
   ) +
   theme_classic() +
   plot_theme_bar +
-  theme(legend.text=element_text(size=10), 
+  theme(legend.text=element_text(size=20), 
         legend.position = "inside",
         legend.position.inside = c(.8, .45),
         legend.background = element_rect(fill = "transparent", colour = NA))
@@ -163,14 +163,15 @@ outcome_plot <- ggplot(counts, aes(x = Answer_ordered, y = Count, fill = outcome
   geom_bar(stat = "identity", width = 0.7) +
   scale_fill_viridis_d(option = "viridis", begin = 1, end = 0) +
   coord_flip() +
-  geom_text(aes(label = Count), hjust = -0.2, size = 5) +
+  geom_text(aes(label = Count), hjust = -0.2, size = 8) +
   labs(x = "", y = "Number of MAs", 
        title = "Outcome Measures Analyzed",
        fill = "Measurement Type") +
   theme_classic() +
   plot_theme_bar +
   theme(plot.title = element_text(hjust=0.5),
-        legend.text=element_text(size=10), 
+        legend.title = element_blank(),
+        legend.text=element_text(size=20), 
         legend.position = "inside",
         legend.position.inside = c(.8, .45),
         legend.background = element_rect(fill = "transparent", colour = NA)) +
@@ -211,7 +212,7 @@ phase_plot <- ggplot(counts, aes(x = reorder(Answer,Count, decreasing = FALSE), 
   geom_bar(stat = "identity", width = 0.7) +
   scale_fill_viridis_d(option = "viridis", begin = 0.5, end = 0.5) +           # <- key change here
   coord_flip() +
-  geom_text(aes(label = Count), hjust = -0.2, size = 5) +
+  geom_text(aes(label = Count), hjust = -0.2, size = 8) +
   labs(x = "", y = "Number of MAs", 
        title = "Phases Analyzed") +
   theme_classic() +
@@ -234,7 +235,8 @@ mod_plot <- ggplot(data_mod, aes(x = reorder(ID,Value, decreasing = FALSE), y = 
   labs(title = "Number of Tested Moderators", x = "Study", y = "Moderators Tested") +
   theme_classic()+ 
   plot_theme_bar +
-  theme(legend.text=element_text(size=10), 
+  theme(legend.title = element_blank(),
+        legend.text=element_text(size=20), 
         legend.position = "inside",
         legend.position.inside = c(.8, .45),
         legend.background = element_rect(fill = "transparent", colour = NA))
