@@ -13,9 +13,9 @@ library(forcats)
 # access the created plotting functions
 source("plot_functions.R")
 
-# load metadata from google spreadsheet ####
-url <- "https://docs.google.com/spreadsheets/d/1UtuHWBGqRnDnIB22Qs8lBElyr8jwv6UPu9rxcffiqLA/edit?usp=sharing"
-data <- read.csv(text=gsheet2text(url, format='csv', sheetid = 1468738086), stringsAsFactors=FALSE, na = c("", "NA"), check.names = FALSE)
+# load data ####
+directory <- "C:/Users/bruntsch/Documents/FEAR_REP/aROMA/submission/zenodo/plot_sheet.tsv"
+data <- read.csv(directory, stringsAsFactors=FALSE, sep = "\t", na = c("", "NA"), check.names = FALSE)
 
 # Adding an ID variable containing author & year ####
 data$ID <- NA

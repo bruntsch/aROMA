@@ -93,7 +93,6 @@ plot_simple_count <- function(data, column, title_text, x_axis_name, y_axis_name
     theme_classic() +
     theme(legend.position = "none",
           plot.title = element_text(size=15, hjust = 0),
-          plot.title = element_text(hjust = 0),          # make the background transparent
           panel.background = element_rect(fill = "transparent", colour = NA),
           plot.background = element_rect(fill = "transparent", colour = NA),
           panel.grid.major = element_blank(),
